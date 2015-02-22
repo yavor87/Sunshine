@@ -9,13 +9,11 @@
         android:singleLine="true"
         android:maxLines="1" />
 
-    <!--<ListPreference-->
-        <!--android:key="@string/pref_units_key"-->
-        <!--android:title="@string/pref_units_title"-->
-        <!--android:defaultValue="-1"-->
-        <!--android:entries="@array/pref_example_list_titles"-->
-        <!--android:entryValues="@array/pref_example_list_values"-->
-        <!--android:negativeButtonText="@null"-->
-        <!--android:positiveButtonText="@null" />-->
+    <ListPreference
+        android:key="@string/pref_units_key"
+        android:title="@string/pref_units_title"
+        android:defaultValue="@string/pref_units_metric"
+        android:entries="@array/pref_units_options"
+        android:entryValues="@array/pref_units_values" />
 
 </PreferenceScreen>
