@@ -21,11 +21,21 @@ public class MainActivity extends ActionBarActivity {
         setContentView(R.layout.activity_main);
         if (savedInstanceState == null) {
             getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment())
+                    .add(R.id.container, new ForecastFragment(), ForecastFragment.FORECASTFRAGMENT_TAG)
                     .commit();
         }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        ForecastFragment fragment = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(ForecastFragment.FORECASTFRAGMENT_TAG);
+        String newLocation = Utility.getPreferredLocation(this);
+        if (!fragment.mLocation.equals(newLocation)) {
+            fragment.mLocation = newLocation;
+            fragment.onLocationChanged();
+        }
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
