@@ -53,9 +53,14 @@ public class ForecastAdapter extends CursorAdapter {
         ViewHolder holder = (ViewHolder) view.getTag();
 
         // Read weather icon ID from cursor
-        int weatherId = cursor.getInt(ForecastFragment.COL_WEATHER_ID);
-        // Use placeholder image for now
-        holder.iconView.setImageResource(R.mipmap.ic_launcher);
+        int conditionId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
+        int imageResourceId = -1;
+        if (getItemViewType(cursor.getPosition()) == VIEW_TYPE_TODAY) {
+            imageResourceId = Utility.getArtResourceForWeatherCondition(conditionId);
+        } else {
+            imageResourceId = Utility.getIconResourceForWeatherCondition(conditionId);
+        }
+        holder.iconView.setImageResource(imageResourceId);
 
         // Read date from cursor
         String forecastDate = Utility.getFriendlyDayString(context, cursor.getLong(ForecastFragment.COL_WEATHER_DATE));

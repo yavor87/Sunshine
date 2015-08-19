@@ -143,9 +143,9 @@ public class DetailFragment extends Fragment implements LoaderManager.LoaderCall
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         if (!data.moveToFirst()) { return; }
 
-        int weatherId = data.getInt(COL_WEATHER_CONDITION_ID);
         // Use placeholder Image
-        mIconView.setImageResource(R.mipmap.ic_launcher);
+        int conditionId = data.getInt(COL_WEATHER_CONDITION_ID);
+        mIconView.setImageResource(Utility.getArtResourceForWeatherCondition(conditionId));
 
         // Read date from cursor and update views for day of week and date
         long date = data.getLong(COL_WEATHER_DATE);
