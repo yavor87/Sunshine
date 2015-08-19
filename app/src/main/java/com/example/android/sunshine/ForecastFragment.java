@@ -31,7 +31,6 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private static final int LOADER_ID = 0;
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
-    public static final String FORECASTFRAGMENT_TAG = ForecastFragment.class.getSimpleName();
 
     private static final String[] FORECAST_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,

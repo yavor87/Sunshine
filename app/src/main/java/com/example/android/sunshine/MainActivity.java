@@ -13,23 +13,33 @@ import android.view.MenuItem;
 
 public class MainActivity extends ActionBarActivity {
 
-    private final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
+    private static final String DETAILFRAGMENT_TAG = "SFTAG";
+
+    private boolean mTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        if (savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new ForecastFragment(), ForecastFragment.FORECASTFRAGMENT_TAG)
-                    .commit();
+        if (findViewById(R.id.weather_detail_container) != null) {
+            mTwoPane = true;
+            if (savedInstanceState == null) {
+                getSupportFragmentManager()
+                        .beginTransaction()
+                        .replace(R.id.weather_detail_container, new DetailFragment())
+                        .commit();
+            }
+        } else {
+            mTwoPane = false;
         }
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        ForecastFragment fragment = (ForecastFragment)getSupportFragmentManager().findFragmentByTag(ForecastFragment.FORECASTFRAGMENT_TAG);
+        ForecastFragment fragment = (ForecastFragment)getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_forecast);
         String newLocation = Utility.getPreferredLocation(this);
         if (!fragment.mLocation.equals(newLocation)) {
             fragment.mLocation = newLocation;
