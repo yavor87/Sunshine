@@ -61,6 +61,8 @@ public class ForecastAdapter extends CursorAdapter {
     public void bindView(View view, Context context, Cursor cursor) {
         ViewHolder holder = (ViewHolder) view.getTag();
 
+        String forecast = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
+
         // Read weather icon ID from cursor
         int conditionId = cursor.getInt(ForecastFragment.COL_WEATHER_CONDITION_ID);
         int imageResourceId = -1;
@@ -70,13 +72,13 @@ public class ForecastAdapter extends CursorAdapter {
             imageResourceId = Utility.getIconResourceForWeatherCondition(conditionId);
         }
         holder.iconView.setImageResource(imageResourceId);
+        holder.iconView.setContentDescription(forecast);
 
         // Read date from cursor
         String forecastDate = Utility.getFriendlyDayString(context, cursor.getLong(ForecastFragment.COL_WEATHER_DATE));
         holder.dateView.setText(forecastDate);
 
         // Read weather forecast from cursor
-        String forecast = cursor.getString(ForecastFragment.COL_WEATHER_DESC);
         holder.descriptionView.setText(forecast);
 
         // Read user preference for metric or imperial temperature units
