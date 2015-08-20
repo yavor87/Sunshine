@@ -1,7 +1,7 @@
 package com.example.android.sunshine;
 
+import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
@@ -31,6 +31,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
     private static final int LOADER_ID = 0;
     private static final String LOG_TAG = ForecastFragment.class.getSimpleName();
+    private OnForecastSelectedListener mListener;
 
     private static final String[] FORECAST_COLUMNS = {
             WeatherContract.WeatherEntry.TABLE_NAME + "." + WeatherContract.WeatherEntry._ID,
@@ -57,7 +58,7 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LONG = 8;
 
     private ForecastAdapter mForecastAdapter;
-    String mLocation;
+    private String mLocation;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -94,14 +95,11 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
-                if (cursor != null) {
+                if (cursor != null && mListener != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
                     Uri uri = WeatherContract.WeatherEntry.buildWeatherLocationWithDate(
                             locationSetting, cursor.getLong(COL_WEATHER_DATE));
-                    Log.v(LOG_TAG, "Showing details for " + uri);
-                    Intent intent = new Intent(getActivity(), DetailActivity.class)
-                            .setData(uri);
-                    startActivity(intent);
+                    mListener.onItemSelected(uri);
                 }
             }
         });
@@ -113,6 +111,21 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onActivityCreated(Bundle savedInstanceState) {
         getLoaderManager().initLoader(LOADER_ID, null, this);
         super.onActivityCreated(savedInstanceState);
+    }
+
+    @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+
+        if (activity instanceof OnForecastSelectedListener) {
+            mListener = (OnForecastSelectedListener) activity;
+        }
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        mListener = null;
     }
 
     private void updateWeather() {
@@ -140,7 +153,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
         mForecastAdapter.swapCursor(null);
     }
 
-    public void onLocationChanged() {
+    public void onLocationChanged(String newLocation) {
+        mLocation = newLocation;
         updateWeather();
+    }
+
+    /**
+     * A callback interface that all activities containing this fragment must
+     * implement. This mechanism allows activities to be notified of item
+     * selections.
+     */
+    public interface OnForecastSelectedListener {
+        /**
+         * DetailFragmentCallback for when an item has been selected.
+         */
+        void onItemSelected(Uri dateUri);
     }
 }

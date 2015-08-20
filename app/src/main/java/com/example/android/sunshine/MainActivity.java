@@ -3,20 +3,22 @@ package com.example.android.sunshine;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends ActionBarActivity
+        implements ForecastFragment.OnForecastSelectedListener {
 
     private static final String LOG_TAG = MainActivity.class.getSimpleName();
     private static final String DETAILFRAGMENT_TAG = "SFTAG";
 
     private boolean mTwoPane;
+    private String mLocation;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -27,23 +29,36 @@ public class MainActivity extends ActionBarActivity {
             if (savedInstanceState == null) {
                 getSupportFragmentManager()
                         .beginTransaction()
-                        .replace(R.id.weather_detail_container, new DetailFragment())
+                        .replace(R.id.weather_detail_container, new DetailFragment(), DETAILFRAGMENT_TAG)
                         .commit();
             }
         } else {
             mTwoPane = false;
         }
+        mLocation = Utility.getPreferredLocation(this);
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        ForecastFragment fragment = (ForecastFragment)getSupportFragmentManager()
-                .findFragmentById(R.id.fragment_forecast);
+
         String newLocation = Utility.getPreferredLocation(this);
-        if (!fragment.mLocation.equals(newLocation)) {
-            fragment.mLocation = newLocation;
-            fragment.onLocationChanged();
+        if (!mLocation.equals(newLocation)) {
+            mLocation = newLocation;
+
+            // Update forecast fragment
+            ForecastFragment forecastFragment = (ForecastFragment) getSupportFragmentManager()
+                    .findFragmentById(R.id.fragment_forecast);
+            if (forecastFragment != null)
+                forecastFragment.onLocationChanged(newLocation);
+
+            if (mTwoPane) {
+                // Update detail fragment
+                DetailFragment detailFragment = (DetailFragment) getSupportFragmentManager()
+                        .findFragmentByTag(DETAILFRAGMENT_TAG);
+                if (detailFragment != null)
+                    detailFragment.onLocationChanged(newLocation);
+            }
         }
     }
 
@@ -91,6 +106,22 @@ public class MainActivity extends ActionBarActivity {
             startActivity(intent);
         } else {
             Log.d(LOG_TAG, "Couldn't call " + location + ", no receiving apps installed!");
+        }
+    }
+
+    @Override
+    public void onItemSelected(Uri uri) {
+        if (mTwoPane) {
+            DetailFragment fragment = DetailFragment.newInstance(uri);
+            getSupportFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.weather_detail_container, fragment, DETAILFRAGMENT_TAG)
+                    .addToBackStack(null)
+                    .commit();
+        } else {
+            Intent intent = new Intent(this, DetailActivity.class)
+                    .setData(uri);
+            startActivity(intent);
         }
     }
 }
