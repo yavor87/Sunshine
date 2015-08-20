@@ -57,13 +57,20 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     static final int COL_COORD_LAT = 7;
     static final int COL_COORD_LONG = 8;
 
+    public static final String SELECTED_POSITION = "selected_position";
+
     private ForecastAdapter mForecastAdapter;
     private String mLocation;
+    private int mSelectedPosition = ListView.INVALID_POSITION;
+    private ListView mListView;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
+        if (savedInstanceState != null) {
+            mSelectedPosition = savedInstanceState.getInt(SELECTED_POSITION);
+        }
         mLocation = Utility.getPreferredLocation(getActivity());
     }
 
@@ -89,11 +96,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
 
         mForecastAdapter = new ForecastAdapter(getActivity(), null, 0);
 
-        ListView listView = (ListView)rootView.findViewById(R.id.listview_forecast);
-        listView.setAdapter(mForecastAdapter);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mListView = (ListView)rootView.findViewById(R.id.listview_forecast);
+        mListView.setAdapter(mForecastAdapter);
+        mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                mSelectedPosition = position;
                 Cursor cursor = (Cursor) parent.getItemAtPosition(position);
                 if (cursor != null && mListener != null) {
                     String locationSetting = Utility.getPreferredLocation(getActivity());
@@ -146,6 +154,9 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
         mForecastAdapter.swapCursor(data);
+        if (mSelectedPosition != ListView.INVALID_POSITION) {
+            mListView.smoothScrollToPosition(mSelectedPosition);
+        }
     }
 
     @Override
@@ -156,6 +167,12 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     public void onLocationChanged(String newLocation) {
         mLocation = newLocation;
         updateWeather();
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putInt(SELECTED_POSITION, mSelectedPosition);
     }
 
     /**
