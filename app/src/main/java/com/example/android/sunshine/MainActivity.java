@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.example.android.sunshine.sync.SunshineSyncAdapter;
+
 
 public class MainActivity extends ActionBarActivity
         implements ForecastFragment.OnForecastSelectedListener {
@@ -40,6 +42,8 @@ public class MainActivity extends ActionBarActivity
                 .findFragmentById(R.id.fragment_forecast);
         forecastFragment.setUseTodayLayout(!mTwoPane);
         mLocation = Utility.getPreferredLocation(this);
+
+        SunshineSyncAdapter.initializeSyncAdapter(this);
     }
 
     @Override
