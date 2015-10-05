@@ -1,6 +1,8 @@
 package com.example.android.sunshine;
 
 import android.app.Activity;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
@@ -143,9 +145,17 @@ public class ForecastFragment extends Fragment implements LoaderManager.LoaderCa
     private void updateWeather() {
         Log.v(LOG_TAG, "Fetching weather for location " + mLocation);
 
-        Intent fetchWeather = new Intent(getActivity(), SunshineService.class);
-        fetchWeather.putExtra(SunshineService.LOCATION_QUERY_EXTRA, mLocation);
-        getActivity().startService(fetchWeather);
+        Intent alarmIntent = new Intent(getActivity(), SunshineService.AlarmReceiver.class);
+        alarmIntent.putExtra(SunshineService.LOCATION_QUERY_EXTRA, mLocation);
+
+        PendingIntent pi = PendingIntent.getBroadcast(getActivity(), 0, alarmIntent,
+                PendingIntent.FLAG_ONE_SHOT);
+        AlarmManager am = (AlarmManager) getActivity().getSystemService(Context.ALARM_SERVICE);
+        am.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis() + 5000, pi);
+
+//        Intent fetchWeather = new Intent(getActivity(), SunshineService.class);
+//        fetchWeather.putExtra(SunshineService.LOCATION_QUERY_EXTRA, mLocation);
+//        getActivity().startService(fetchWeather);
     }
 
     @Override
